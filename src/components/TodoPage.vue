@@ -18,7 +18,7 @@
             더보기<span class="caret"></span>
           </button>
           <ul class="dropdown-menu">
-            <li><a href="#" @click="deleteTodo(index)">삭제</a></li>
+            <li><a href="#" @click="deleteTodo(todo)">삭제</a></li>
           </ul>
         </div>
       </li>
@@ -35,33 +35,41 @@
         todos : []
       }
     },
+    mounted(){
+      this.getTodos();
+    },
     methods : {
-      deleteTodo(i) {
-        this.todos.splice(i, 1);
+      deleteTodo(todo){
+        var vm = this
+        this.todos.forEach(function(_todo,i, obj){
+          if(_todo.id === todo.id){
+            vm.$http.delete('http://todos.garam.xyz/api/todos/'+todo.id)
+            .then((result) => {
+                obj.splice(i, 1)
+            })	
+          }
+        })
       },
-      createTodo(name) {
-        if (name != null) {
+      createTodo(name){
+        if(name != null){
           var vm = this;
-          this.$http.defaults.headers.post['Content-Type'] = 'appliction/json';
-          this.$http.post('http://todos.garam.xyz/api/todos', {
+          this.$http.defaults.headers.post['Content-Type'] = 'application/json';
+          this.$http.post('http://todos.garam.xyz/api/todos',{
             name:name
           }).then((result) => {
-            vm.todos.push(result.data);
+              vm.todos.push(result.data);
           })
 
-          this.name = null;
+          this.name = null
         }
       },
       getTodos(){
         var vm = this;
         this.$http.get('http://todos.garam.xyz/api/todos')
         .then((result) => {
-            vm.todos = result.data.data;
-        })
+              vm.todos = result.data.data;
+          })
       }
-    },
-    mounted(){
-      this.getTodos();
     }
   }
 </script>
